@@ -17,5 +17,5 @@ model urls {
   id        Int      @id @default(autoincrement())
   url_long  String   @db.Text
   url_short String   @unique @db.Text
-  createdAt DateTime
+  createdAt DateTime @default(now())
 }
