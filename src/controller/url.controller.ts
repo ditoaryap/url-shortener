@@ -58,26 +58,40 @@ export const createUrlController = async (
     req: Request,
     res: Response
 ) => {
-    const { url_long } = req.body; 
+    const { url_long, url_short } = req.body; 
 
     if (!url_long) {
         return res.status(400).json({ error: "url_long is required" });
     }
 
     try {
-        const hash = crypto.createHash('sha256').update(url_long).digest('hex').slice(0, 8);
-        const url = await prisma.urls.create({
-            data: {
-                url_long,
-                url_short: hash
-            }
+        const existingUrl = await prisma.urls.findFirst({
+            where: { url_short: url_short }
         });
 
-        res.status(201).json({
-            message: "URL berhasil dibuat",
-            url
-        });
+        if (existingUrl) {
+            const hash = Math.random().toString(36).substring(2,7);
+            const generatedUrlShort = url_short || hash;
+    
+            const url = await prisma.urls.create({
+                data: {
+                    url_long,
+                    url_short: generatedUrlShort
+                }
+            });
+    
+            res.status(201).json({
+                message: "URL berhasil dibuat",
+                url
+            });
+            
+        } else {
+            return res.status(400).json({ error: `URL dengan nama ${url_short} sudah ada` });
+        }
+
+        
     } catch (error) {
-        res.status(500).json({ error: "URL sudah ada" });
+        console.error("Error creating URL:", error);
+        res.status(500).json({ error: "Terjadi kesalahan pada server" });
     }
 };
