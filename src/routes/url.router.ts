@@ -2,13 +2,13 @@ import express from "express";
 import {
     getUrlController,
     createUrlController,
-    getUrlByIdController
+    redirectToLongUrl,
 } from "../controller/url.controller"
 
 const router = express.Router();
 
-router.get("/", getUrlController)
-router.get("/:id", getUrlByIdController)
+router.get("/urls", getUrlController)
 router.post("/", createUrlController)
+router.get("/:shortUrl", redirectToLongUrl)
 
 export default router
